@@ -40,4 +40,4 @@ If you need to run the notebook for experiments or exploration, launch JupyterLa
 uv run jupyter lab
 ```
 
-> Note: the `.ipynb` notebook is experimental work and is not the primary source of truth. The real code lives in `main.py`.
+> Note: the `.ipynb` notebook is experimental work and is not the primary source of truth. The real code lives in `main_level_1.py`.
