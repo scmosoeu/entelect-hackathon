@@ -25,7 +25,7 @@ def load_python_literal_file(source_file) -> dict[str, Any]:
 
     with open(source_file, 'r') as f:
         file_content = f.read()
-    return ast.literal_eval(file_content
+    return ast.literal_eval(file_content)
 
 
 def get_start_and_end_nodes(data: dict[str, Any]) -> tuple[str, str]:
