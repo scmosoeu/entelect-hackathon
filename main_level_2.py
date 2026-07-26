@@ -47,6 +47,23 @@ def get_start_and_end_nodes(data: dict[str, Any]) -> tuple[str, str]:
     return start_node, end_node
 
 
+def get_additional_nodes(data: dict[str, Any]) -> str:
+    """Extract additional nodes from the data.
+
+    This function retrieves the 'additional_nodes' from the input
+    dictionary `data`. It assumes that the key 'additional_nodes' exists in
+    the dictionary.
+
+    Args:
+        data: A dictionary containing the graph data.
+
+    Returns:
+        A string containing the additional nodes.
+    """
+
+    return data['required_stops']
+
+
 def extract_edges_from_data(data: dict[str, Any]) -> list[tuple[str, str]]:
     """Extract edges from a nested dictionary structure.
 
@@ -98,7 +115,7 @@ def build_weighted_graph(edges: list[tuple[str, str, int]]) -> nx.Graph:
     return G
 
 
-def build_graph_from_source(G: nx.Graph, start_node: str, end_node: str) -> tuple[int, list[str]]:
+def get_distance_and_path(G: nx.Graph, start_node: str, end_node: str) -> tuple[int, list[str]]:
     """Find the shortest path and its distance in a weighted graph.
 
     Args:
@@ -166,9 +183,12 @@ def main():
 
     data = load_python_literal_file(SOURCE_DATA)
     start_node, end_node = get_start_and_end_nodes(data)
+    required_stops = get_additional_nodes(data)
     edges = extract_edges_from_data(data)
+
     G = build_weighted_graph(edges)
-    distance, path = build_graph_from_source(G, start_node=start_node, end_node=end_node)
+
+    distance, path = get_distance_and_path(G, start_node=start_node, end_node=end_node)
 
     results = {
         "route": path
