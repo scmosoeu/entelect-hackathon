@@ -70,7 +70,7 @@ def extract_edges_from_data(data: dict[str, Any]) -> list[tuple[str, str]]:
         for value in values:
 
             node = value['node']
-            weight = value['weight']
+            weight = value['time'] + value['risk']
 
             entry = (key, node, weight)
             edges.append(entry)
@@ -78,7 +78,27 @@ def extract_edges_from_data(data: dict[str, Any]) -> list[tuple[str, str]]:
     return edges
 
 
-def build_graph_from_source(edges: list[tuple[str, str]], source: str, target: str) -> list[str]:
+def build_weighted_graph(edges: list[tuple[str, str, int]]) -> nx.Graph:
+    """Create a weighted graph from the collected edges.
+
+    This function initializes an undirected graph and adds the provided
+    edges with their associated weights so it can be used for pathfinding.
+
+    Args:
+        edges: A list of tuples of start and end nodes with weights.
+    
+    Returns:
+        A NetworkX Graph object representing the weighted graph.
+    """
+    
+    # Create a weighted graph
+    G = nx.Graph()
+    G.add_weighted_edges_from(edges)
+
+    return G
+
+
+def build_graph_from_source(edges: list[tuple[str, str]], start_node: str, end_node: str) -> tuple[int, list[str]]:
     """Build a directed graph from a list of edges.
 
     This function creates a directed graph using the NetworkX library and adds
@@ -87,20 +107,21 @@ def build_graph_from_source(edges: list[tuple[str, str]], source: str, target: s
 
     Args:
         edges: A list of tuples representing the edges in the graph.
-        source: The source node for the path.
-        target: The target node for the path.
+        start_node: The starting node for the path.
+        end_node: The target node for the path.
 
     Returns:
-        A directed graph (DiGraph) constructed from the edges.
+        A tuple containing the shortest distance and the path as a list of nodes.
     """
 
     # Create a weighted graph
     G = nx.Graph()
     G.add_weighted_edges_from(edges)
 
-    path = nx.dijkstra_path(G, source=source, target=target)
+    path = nx.dijkstra_path(G, source=start_node, target=end_node)
+    distance = nx.dijkstra_path_length(G, source=start_node, target=end_node)
 
-    return path
+    return distance, path
 
 def create_directory_if_not_exists(folder_path: Path) -> None:
     """Create a directory if it does not exist.
@@ -136,7 +157,7 @@ def main():
     data = load_python_literal_file(SOURCE_DATA)
     start_node, end_node = get_start_and_end_nodes(data)
     edges = extract_edges_from_data(data)
-    
+    distance, path = build_graph_from_source(edges, start_node=start_node, end_node=end_node)
     path = build_graph_from_source(edges, source=start_node, target=end_node)
 
     results = {
