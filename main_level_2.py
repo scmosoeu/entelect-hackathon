@@ -90,7 +90,7 @@ def build_weighted_graph(edges: list[tuple[str, str, int]]) -> nx.Graph:
     Returns:
         A NetworkX Graph object representing the weighted graph.
     """
-    
+
     # Create a weighted graph
     G = nx.Graph()
     G.add_weighted_edges_from(edges)
@@ -98,15 +98,11 @@ def build_weighted_graph(edges: list[tuple[str, str, int]]) -> nx.Graph:
     return G
 
 
-def build_graph_from_source(edges: list[tuple[str, str]], start_node: str, end_node: str) -> tuple[int, list[str]]:
-    """Build a directed graph from a list of edges.
-
-    This function creates a directed graph using the NetworkX library and adds
-    edges to it based on the provided list of edges. Each edge is represented
-    as a tuple of (source_node, target_node, weight).
+def build_graph_from_source(G: nx.Graph, start_node: str, end_node: str) -> tuple[int, list[str]]:
+    """Find the shortest path and its distance in a weighted graph.
 
     Args:
-        edges: A list of tuples representing the edges in the graph.
+        G: A NetworkX Graph object representing the weighted graph.
         start_node: The starting node for the path.
         end_node: The target node for the path.
 
@@ -114,14 +110,28 @@ def build_graph_from_source(edges: list[tuple[str, str]], start_node: str, end_n
         A tuple containing the shortest distance and the path as a list of nodes.
     """
 
-    # Create a weighted graph
-    G = nx.Graph()
-    G.add_weighted_edges_from(edges)
-
     path = nx.dijkstra_path(G, source=start_node, target=end_node)
     distance = nx.dijkstra_path_length(G, source=start_node, target=end_node)
 
     return distance, path
+
+
+def get_shortest_path(data: dict[int, list[str]]) -> list[str]:
+    """Get the shortest path based on the calculated distance for each path.
+
+    Args:
+        data: A dictionary containing distance and respective path.
+
+    Returns:
+        A list of nodes representing the shortest path.
+    """
+
+    # The keys are the distances, and the values are the corresponding paths.
+
+    min_distance = min(data.keys())
+
+    return data[min_distance]
+
 
 def create_directory_if_not_exists(folder_path: Path) -> None:
     """Create a directory if it does not exist.
@@ -157,8 +167,8 @@ def main():
     data = load_python_literal_file(SOURCE_DATA)
     start_node, end_node = get_start_and_end_nodes(data)
     edges = extract_edges_from_data(data)
-    distance, path = build_graph_from_source(edges, start_node=start_node, end_node=end_node)
-    path = build_graph_from_source(edges, source=start_node, target=end_node)
+    G = build_weighted_graph(edges)
+    distance, path = build_graph_from_source(G, start_node=start_node, end_node=end_node)
 
     results = {
         "route": path
