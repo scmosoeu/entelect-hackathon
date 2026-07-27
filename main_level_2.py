@@ -186,7 +186,7 @@ def main():
         travel_path = [start_node] + list(perm) + [end_node]
         for i, (start_loc, end_loc) in enumerate(zip(travel_path[:-1], travel_path[1:])):
 
-            distance, calc_route =get_distance_and_path(G, start_loc, end_loc)
+            distance, calc_route = get_distance_and_path(G, start_loc, end_loc)
             if not i:
                 route += calc_route
             else:
