@@ -1,7 +1,9 @@
 import ast
 import json
+import math
 import networkx as nx
 
+from functools import permutations
 from pathlib import Path
 from typing import Any
 
@@ -135,61 +137,6 @@ def get_distance_and_path(G: nx.Graph, start_node: str, end_node: str) -> tuple[
     return distance, path
 
 
-def get_shortest_path(data: dict[int, list[str]]) -> list[str]:
-    """Get the shortest path based on the calculated distance for each path.
-
-    Args:
-        data: A dictionary containing distance and respective path.
-
-    Returns:
-        A list of nodes representing the shortest path.
-    """
-
-    # The keys are the distances, and the values are the corresponding paths.
-
-    min_distance = min(data.keys())
-
-    return data[min_distance]
-
-
-def get_routes(G: nx.Graph, start_node: str, end_node: str, required_stops: list[str]) -> dict[int, list[str]]:
-    """Get all possible routes from start_node to end_node that include required_stops.
-
-    This function generates all simple paths in the graph G from start_node to
-    end_node, filters them to include only those that contain all required_stops,
-    and calculates the total distance for each valid path.
-
-    Args:
-        G: A NetworkX Graph object representing the weighted graph.
-        start_node: The starting node for the paths.
-        end_node: The target node for the paths.
-        required_stops: A list of nodes that must be included in the path.
-    """
-
-    routes = {}
-
-    if not len(required_stops):
-        # initialize iterator
-        i = 0
-        while i < len(required_stops):
-
-            distance, path = get_distance_and_path(G, start_node=start_node, end_node=required_stops[i])
-
-            # Update the routes dictionary with the distance as the key and 
-            # the route as the value
-            routes.update({distance: path})
-
-            i += 1
-    else:
-        distance, path = get_distance_and_path(G, start_node=start_node, end_node=end_node)
-
-        # Update the routes dictionary with the distance as the key and 
-        # the route as the value
-        routes.update({distance: path})
-
-    return routes
-
-
 def create_directory_if_not_exists(folder_path: Path) -> None:
     """Create a directory if it does not exist.
 
@@ -229,18 +176,35 @@ def main():
 
     G = build_weighted_graph(edges)
 
-    for required_stop in required_stops:
-        distance, path = get_distance_and_path(G, start_node=start_node, end_node=required_stop)
-        
+    min_distance = math.inf
+    # Get all pemutations of the required stops
+    all_perms = permutations(required_stops)
+
+    for perm in all_perms:
+        route = []
+        distance = 0
+        travel_path = [start_node] + list(perm) + [end_node]
+        for i, (start_loc, end_loc) in enumerate(zip(travel_path[:-1], travel_path[1:])):
+
+            distance, calc_route =get_distance_and_path(G, start_loc, end_loc)
+            if not i:
+                route += calc_route
+            else:
+                # Exclude first entry since its the same as last entry of previous
+                # calculated route
+                route += calc_route[1:]
+
+        if distance <= min_distance:
+            optimum_route = route 
+            min_distance = distance
 
 
-
-    # results = {
-    #     "route": path
-    # }
+    results = {
+        "route": optimum_route
+    }
     
-    # file_path = folder_path / OUTPUT_FILE
-    # save_results_to_file(results, file_path)
+    file_path = folder_path / OUTPUT_FILE
+    save_results_to_file(results, file_path)
 
 if __name__ == "__main__":
     main()
