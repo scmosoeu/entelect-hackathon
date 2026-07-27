@@ -3,7 +3,7 @@ import json
 import math
 import networkx as nx
 
-from functools import permutations
+from itertools import permutations
 from pathlib import Path
 from typing import Any
 
