@@ -5,7 +5,9 @@ import networkx as nx
 from pathlib import Path
 from typing import Any
 
-SOURCE_DATA = 'data/level_1.txt'
+
+SOURCE_DATA = 'data/level_2.txt'
+OUTPUT_FILE = 'level_2_shortest_path.txt'
 
 
 def load_python_literal_file(source_file) -> dict[str, Any]:
@@ -150,6 +152,44 @@ def get_shortest_path(data: dict[int, list[str]]) -> list[str]:
     return data[min_distance]
 
 
+def get_routes(G: nx.Graph, start_node: str, end_node: str, required_stops: list[str]) -> dict[int, list[str]]:
+    """Get all possible routes from start_node to end_node that include required_stops.
+
+    This function generates all simple paths in the graph G from start_node to
+    end_node, filters them to include only those that contain all required_stops,
+    and calculates the total distance for each valid path.
+
+    Args:
+        G: A NetworkX Graph object representing the weighted graph.
+        start_node: The starting node for the paths.
+        end_node: The target node for the paths.
+        required_stops: A list of nodes that must be included in the path.
+    """
+
+    routes = {}
+
+    if not len(required_stops):
+        # initialize iterator
+        i = 0
+        while i < len(required_stops):
+
+            distance, path = get_distance_and_path(G, start_node=start_node, end_node=required_stops[i])
+
+            # Update the routes dictionary with the distance as the key and 
+            # the route as the value
+            routes.update({distance: path})
+
+            i += 1
+    else:
+        distance, path = get_distance_and_path(G, start_node=start_node, end_node=end_node)
+
+        # Update the routes dictionary with the distance as the key and 
+        # the route as the value
+        routes.update({distance: path})
+
+    return routes
+
+
 def create_directory_if_not_exists(folder_path: Path) -> None:
     """Create a directory if it does not exist.
 
@@ -182,20 +222,25 @@ def main():
     create_directory_if_not_exists(folder_path)
 
     data = load_python_literal_file(SOURCE_DATA)
+
     start_node, end_node = get_start_and_end_nodes(data)
     required_stops = get_additional_nodes(data)
     edges = extract_edges_from_data(data)
 
     G = build_weighted_graph(edges)
 
-    distance, path = get_distance_and_path(G, start_node=start_node, end_node=end_node)
+    for required_stop in required_stops:
+        distance, path = get_distance_and_path(G, start_node=start_node, end_node=required_stop)
+        
 
-    results = {
-        "route": path
-    }
+
+
+    # results = {
+    #     "route": path
+    # }
     
-    file_path = folder_path / 'level_1_shortest_path.txt'
-    save_results_to_file(results, file_path)
+    # file_path = folder_path / OUTPUT_FILE
+    # save_results_to_file(results, file_path)
 
 if __name__ == "__main__":
     main()
