@@ -27,7 +27,7 @@ If `uv` is not installed, follow the official installation instructions for your
 Run the main entrypoint with:
 
 ```bash
-uv run main_level_1.py
+uv run main_level_2.py
 ```
 
 The results will be placed in the **output** directory, which will be created if it does not exist.
@@ -40,4 +40,4 @@ If you need to run the notebook for experiments or exploration, launch JupyterLa
 uv run jupyter lab
 ```
 
-> Note: the `.ipynb` notebook is experimental work and is not the primary source of truth. The real code lives in `main_level_1.py`.
+> Note: the `.ipynb` notebook is experimental work and is not the primary source of truth. The real code lives in `main_level_2.py`.
