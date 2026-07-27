@@ -119,24 +119,6 @@ def build_weighted_graph(edges: list[tuple[str, str, int]]) -> nx.Graph:
     return G
 
 
-def get_distance_and_path(G: nx.Graph, start_node: str, end_node: str) -> tuple[int, list[str]]:
-    """Find the shortest path and its distance in a weighted graph.
-
-    Args:
-        G: A NetworkX Graph object representing the weighted graph.
-        start_node: The starting node for the path.
-        end_node: The target node for the path.
-
-    Returns:
-        A tuple containing the shortest distance and the path as a list of nodes.
-    """
-
-    path = nx.dijkstra_path(G, source=start_node, target=end_node)
-    distance = nx.dijkstra_path_length(G, source=start_node, target=end_node)
-
-    return distance, path
-
-
 def create_directory_if_not_exists(folder_path: Path) -> None:
     """Create a directory if it does not exist.
 
@@ -186,7 +168,8 @@ def main():
         travel_path = [start_node] + list(perm) + [end_node]
         for i, (start_loc, end_loc) in enumerate(zip(travel_path[:-1], travel_path[1:])):
 
-            distance, calc_route = get_distance_and_path(G, start_loc, end_loc)
+            calc_route = nx.dijkstra_path(G, source=start_loc, target=end_loc)
+            distance += nx.dijkstra_path_length(G, source=start_loc, target=end_loc)
             if not i:
                 route += calc_route
             else:
